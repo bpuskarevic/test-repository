@@ -1,2 +1,2 @@
 # test-repository
-Test repository for Coursera course
+Test repository for learning purposes
