@@ -136,16 +136,23 @@ function inputOperator(op) {
   // If there is a pending operation with a second operand entered, evaluate first.
   if (state.operator !== null && state.previous !== null && !state.shouldReset) {
     const result = calculate(state.previous, state.operator, state.current);
+    if (result === 'Error') {
+      state.current = 'Error';
+      state.previous = null;
+      state.operator = null;
+      state.shouldReset = false;
+      render();
+      clearActiveOp();
+      return;
+    }
     state.current = result;
-    // Show the full chain in expression before storing
-    expressionEl.textContent = `${state.previous} ${state.operator} ${state.current} =`;
     state.previous = result;
   } else {
     // No pending operator — store current as previous
     state.previous = state.current;
   }
 
-  state.operator   = op;
+  state.operator    = op;
   state.shouldReset = true;
 
   render();
@@ -206,9 +213,10 @@ function backspace() {
     return;
   }
   if (state.shouldReset) {
+    // DEL after operator/equals: cancel the pending operation and restore editing
     state.shouldReset = false;
-    state.current = '0';
-    state.previous = '';
+    state.current = state.previous !== null ? state.previous : '0';
+    state.previous = null;
     state.operator = null;
     clearActiveOp();
     render();
